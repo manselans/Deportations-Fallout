@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+
+# Packaging artifacts
+/build/
+/dist/
+*.egg-info/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs
+*.log
