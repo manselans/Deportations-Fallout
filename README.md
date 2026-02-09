@@ -40,7 +40,7 @@ crime = Path(r"/absolute/path/to/crime/registers")
 
 The code was run using **Python 3.x** (see `requirements.txt` for package versions).
 
-### Dependencies (important distinction)
+### Dependencies 
 
 This repository uses **two dependency specifications**:
 
@@ -52,15 +52,9 @@ This repository uses **two dependency specifications**:
   → Project metadata and logical dependencies  
   → Useful for development or editable installs
 
-### Recommended (exact replication)
-
-Install exact versions used in the paper:
+For exact versions used in the paper:
 
 `pip install -r requirements.txt`
-
-Optional (development tools, e.g. Jupyter):
-
-`pip install .[dev]`
 
 ## Replication steps
 
