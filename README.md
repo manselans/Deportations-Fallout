@@ -10,7 +10,9 @@ The repository is structured to allow full replication of all results, condition
 ## Repository structure
 
 src/build/ # data construction pipeline
+
 src/analysis/ # generation of figures and tables
+
 src/tools/ # paths, helpers, utilities
 
 ## Data access and paths (IMPORTANT)
@@ -82,4 +84,5 @@ The corresponding `.do` file is included but is **not required** for the main re
 ## Notes
 
 This repository reflects the exact code state used for the paper.  
+
 A tagged release corresponds to the submitted manuscript.
