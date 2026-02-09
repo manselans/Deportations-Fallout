@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backends = "setuptools.build_meta"
+
+[project]
+name = "deportation_orders"
+version = "0.1.0"
+description = "Replication package for paper Deportation's Fallout: Evidence from Denmark"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [
+    { name = "Noa Hendel", email = "nhe@rff.dk" }
+]
+
+dependencies = [
+    "pandas",
+    "numpy",
+    "scipy",
+    "matplotlib",
+    "pyarrow",
+    "linearmodels",
+    "statsmodels",
+    "scikit-learn"
+]
+
+[project.optional-dependencies]
+dev = [
+    "ipykernel",
+]
+
+[tools.setuptools]
+package-dir = {"" = "src"}
