@@ -1,0 +1,82 @@
+country,code,menapt,western,eu_eea
+Afghanistan,5404,1,0,0
+Algeria,5202,1,0,0
+Andorra,5124,0,1,0
+Australia,5502,0,1,0
+Austria,5182,0,1,1
+Bahrain,5406,1,0,0
+Belgium,5126,0,1,1
+Bosnia and Herzegovina,5754,0,0,0
+Bulgaria,5128,0,1,1
+Canada,5314,0,1,0
+Croatia,5750,0,1,1
+Cypern,5422,0,1,1
+Czech Rep.,5776,0,1,1
+Denmark,5100,0,1,1
+Djibouti,5525,1,0,0
+East Jerusalem,5437,1,0,0
+Egypt,5272,1,0,0
+Eritrea,5216,0,0,0
+Estonia,5607,0,1,1
+Faroese Island,5902,0,1,0
+Faroese Island,5901,0,1,0
+Finland,5104,0,1,1
+France,5130,0,1,1
+GB,5170,0,1,1
+Gaza,5223,1,0,0
+Germany,5180,0,1,1
+Greece,5134,0,1,1
+Greenland,5101,0,1,0
+Hungary,5174,0,1,1
+Iceland,5106,0,1,1
+Iceland II,5105,0,1,1
+Iran,5438,1,0,0
+Iraq,5436,1,0,0
+Ireland,5142,0,1,1
+Italy,5150,0,1,1
+Jordan,5446,1,0,0
+Kuwait,5452,1,0,0
+Latvia,5609,0,1,1
+Lebanon,5456,1,0,0
+Libya,5238,1,0,0
+Liechtenstein,5107,0,1,1
+Lithuania,5611,0,1,1
+Luxembourg,5108,0,1,1
+Malta,5153,0,1,1
+Marocco,5244,1,0,0
+Mauritania,5245,1,0,0
+Middle East (unspecified),5487,1,0,0
+Monaco,5109,0,1,0
+Netherlands,5140,0,1,1
+New Zealand,5514,0,1,0
+Norway,5110,0,1,1
+Oman,5462,1,0,0
+Pakistan,5472,1,0,0
+Palestine,5473,1,0,0
+Palestine II,5157,1,0,0
+Poland,5154,0,1,1
+Portugal,5156,0,1,1
+Qatar,5496,1,0,0
+Romania,5158,0,1,1
+Royal,5115,0,1,1
+San Marino,5159,0,1,0
+Saudi-Arabia,5478,1,0,0
+Slovakia,5778,0,1,1
+Slovenia,5752,0,1,1
+Somalia,5289,1,0,0
+Spain,5164,0,1,1
+Stateless,5103,0,0,0
+Sudan,5258,1,0,0
+Sweden,5120,0,1,1
+Switzerland,5160,0,1,0
+Syria,5486,1,0,0
+Thailand,5492,0,0,0
+Tunesia,5268,1,0,0
+Turkey,5172,1,0,0
+UAE,5403,1,0,0
+USA,5390,0,1,0
+Vatican,5176,0,1,0
+Vietnam,5488,0,0,0
+West Bank,5393,1,0,0
+Yemen,5402,1,0,0
+Yugoslavia,5152,0,0,0
