@@ -1,27 +1,33 @@
 [build-system]
-requires = ["setuptools>=61"]
-build-backends = "setuptools.build_meta"
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [project]
-name = "deportation_orders"
+name = "deportation-orders"
 version = "0.1.0"
-description = "Replication package for paper Deportation's Fallout: Evidence from Denmark"
+description = "Replication package for Deportation's Fallout: Evidence from Denmark"
 readme = "README.md"
 requires-python = ">=3.8"
 license = { text = "MIT" }
 authors = [
     { name = "Noa Hendel", email = "nhe@rff.dk" }
 ]
-
+keywords = ["replication", "economics", "deportation", "denmark"]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Operating System :: OS Independent"
+]
 dependencies = [
-    "pandas",
-    "numpy",
-    "scipy",
-    "matplotlib",
-    "pyarrow",
     "linearmodels",
-    "statsmodels",
-    "scikit-learn"
+    "matplotlib",
+    "numpy",
+    "pandas",
+    "pyarrow",
+    "scikit-learn",
+    "scipy",
+    "statsmodels"
 ]
 
 [project.optional-dependencies]
@@ -29,5 +35,18 @@ dev = [
     "ipykernel",
 ]
 
-[tools.setuptools]
-package-dir = {"" = "src"}
+[project.scripts]
+run-data = "build.run_data:main"
+run-analysis = "analysis.run_analysis:main"
+
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["analysis*", "build*", "tools*"]
+
+[tool.setuptools.package-data]
+tools = ["data/*.csv"]
