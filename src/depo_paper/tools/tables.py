@@ -288,6 +288,7 @@ def results_table(
 
 
 def _fmt_num(x, floatfmt):
+    """Format model statistics while handling missing and integer values."""
     if x is None:
         return ""
     try:
@@ -302,14 +303,17 @@ def _fmt_num(x, floatfmt):
 
 
 def _get_stat(res, name):
+    """Safely fetch a model statistic by attribute name."""
     return getattr(res, name, np.nan)
 
 
 def _fmt(x, floatfmt):
+    """Format coefficients/interval bounds for display rows."""
     return "" if pd.isna(x) else floatfmt.format(x)
 
 
 def _breaker(x):
+    """Return an HTML line break marker when the coefficient is present."""
     return "" if pd.isna(x) else "<br>"
 
 

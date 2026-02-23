@@ -178,12 +178,12 @@ def gather(
 
 def load_csv(name: str) -> pd.DataFrame:
     """
-    Load external csv-data from /src/tools/data folder.
+    Load external csv-data from /src/depo_paper/tools/data folder.
 
     Parameters
     ----------
     name
-        Name of .csv in src/tools/data
+        Name of .csv in src/depo_paper/tools/data
 
     Returns
     -------

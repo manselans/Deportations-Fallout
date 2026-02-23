@@ -16,10 +16,10 @@ import matplotlib.patches as mpatches
 import statsmodels.formula.api as smf
 import statsmodels.api as sm
 
-from tools.paths import init
-from tools.formatting import setup_pyplot
-from tools.io import load_csv, gather
-from tools.rules import crime_type
+from depo_paper.config import PATHS
+from depo_paper.tools.formatting import setup_pyplot
+from depo_paper.tools.io import load_csv, gather
+from depo_paper.tools.rules import crime_type
 
 
 def run():
@@ -31,14 +31,14 @@ def run():
     """
 
     # expose paths (and create output folders if they do not exist)
-    paths = init(Path.cwd())
+    paths = PATHS
 
     # setup plotting defaults
     setup_pyplot()
 
     # load data
-    panel = pd.read_parquet(paths.data / "panel.parquet")
-    population = pd.read_parquet(paths.data / "population.parquet")
+    panel = pd.read_parquet(paths.temp / "panel.parquet")
+    population = pd.read_parquet(paths.temp / "population.parquet")
 
     jd = load_csv("judicial_districts.csv").rename(columns={"komkode": "municipality"})
 

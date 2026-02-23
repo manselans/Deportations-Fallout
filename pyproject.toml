@@ -1,10 +1,10 @@
 [build-system]
 requires = ["setuptools>=61"]
-build-backends = "setuptools.build_meta"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "deportation_orders"
-version = "0.1.0"
+version = "2.0.0"
 description = "Replication package for paper Deportation's Fallout: Evidence from Denmark"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -25,9 +25,12 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = [
+notebooks = [
     "ipykernel",
 ]
 
-[tools.setuptools]
+[tool.setuptools]
 package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

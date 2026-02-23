@@ -5,7 +5,7 @@ cap log close
 global path "Y:/Data/Workdata/703566/noa/projects/deportation_orders"
 
 * load data created in analysis.py
-use "$path/data/mccrary.dta", clear
+use "$path/temp/mccrary.dta", clear
 
 local tmp "Xj Yj r0 f_hat se_hat"
 DCdensity seniority, breakpoint(0) gen(`tmp') b(1)
@@ -22,6 +22,6 @@ gen se = se_s
 gen t = t_s
 
 export delimited using "$path/output/tables/mccrary_results.csv"
-erase "$path/data/mccrary.dta"
+erase "$path/temp/mccrary.dta"
 
 exit, clear

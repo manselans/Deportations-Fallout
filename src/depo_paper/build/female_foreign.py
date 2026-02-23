@@ -1,6 +1,6 @@
 """
 Gathers data on the female foreign-born population in 2010 for Table A2.
-Saves to data.
+Saves to temp.
 """
 
 from pathlib import Path
@@ -8,21 +8,21 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from tools.paths import init
-from tools.io import fetch, gather, load_csv
+from depo_paper.config import PATHS
+from depo_paper.tools.io import fetch, gather, load_csv
 
 
 def run():
     """
     Gathers data on the female foreign-born population in 2010.
-    Saves to data.
+    Saves to temp.
     """
 
     # expose paths (and create output folders if they do not exist)
-    paths = init(Path.cwd())
+    paths = PATHS
 
     # load spouses
-    spouses = pd.read_parquet(paths.data / "spouses.parquet")
+    spouses = pd.read_parquet(paths.temp / "spouses.parquet")
 
     # ---- Female Foreign-Born Population, 2010
 
@@ -212,7 +212,7 @@ def run():
 
     ffb.drop(columns=["kategori"], inplace=True)
 
-    ffb.to_parquet(paths.data / "female_foreign_born.parquet")
+    ffb.to_parquet(paths.temp / "female_foreign_born.parquet")
 
 
 if __name__ == "__main__":

@@ -8,10 +8,10 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from tools.paths import init
-from tools.formatting import setup_pyplot
-from tools.plots import dyn_did, raw_rates, did_plot
-from tools.tables import table_by_two
+from depo_paper.config import PATHS
+from depo_paper.tools.formatting import setup_pyplot
+from depo_paper.tools.plots import dyn_did, raw_rates, did_plot
+from depo_paper.tools.tables import table_by_two
 
 
 def run():
@@ -22,15 +22,15 @@ def run():
     """
 
     # expose paths (and create output folders if they do not exist)
-    paths = init(Path.cwd())
+    paths = PATHS
 
     # setup plotting defaults
     setup_pyplot()
 
     # load data
-    panel = pd.read_parquet(paths.data / "panel.parquet")
-    spouses = pd.read_parquet(paths.data / "spouses.parquet")
-    population = pd.read_parquet(paths.data / "population.parquet")
+    panel = pd.read_parquet(paths.temp / "panel.parquet")
+    spouses = pd.read_parquet(paths.temp / "spouses.parquet")
+    population = pd.read_parquet(paths.temp / "population.parquet")
 
     # ---- Table A1: Descriptives of Female Spouses and Female Foreign-Born Population
 
@@ -66,7 +66,7 @@ def run():
     )
 
     # Female immigrants/descendants w. registered spouse or partner (2010)
-    df2 = pd.read_parquet(paths.data / "female_foreign_born.parquet")
+    df2 = pd.read_parquet(paths.temp / "female_foreign_born.parquet")
 
     df = (
         pd.concat([df1, df2], ignore_index=True)

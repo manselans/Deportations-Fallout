@@ -7,9 +7,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from tools.paths import init
-from tools.io import gather
-from tools.rules import rd_exception
+from depo_paper.config import PATHS
+from depo_paper.tools.io import gather
+from depo_paper.tools.rules import rd_exception
 
 
 def run():
@@ -22,7 +22,7 @@ def run():
     """
 
     # expose paths (and create output folders if they do not exist)
-    paths = init(Path.cwd())
+    paths = PATHS
 
     # ---- Deportation orders
 
@@ -323,8 +323,8 @@ def run():
     )
 
     # Save data
-    population.to_parquet(paths.data / "population.parquet")
-    spouses.to_parquet(paths.data / "spouses.parquet")
+    population.to_parquet(paths.temp / "population.parquet")
+    spouses.to_parquet(paths.temp / "spouses.parquet")
 
 
 if __name__ == "__main__":

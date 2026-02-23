@@ -1,31 +1,17 @@
-"""
-    Gathers spouses' outcomes and covariates.
-"""
+"""Gathers spouses' outcomes and covariates."""
 
-from pathlib import Path
+from __future__ import annotations
 
 import numpy as np
 import pandas as pd
 
-from tools.paths import init
-from tools.io import fetch, gather, load_csv
+from depo_paper.config import PATHS
+from depo_paper.tools.io import fetch, gather, load_csv
 
 
-def run():
-    """
-    Gathers
-    - Spouses' wages, transfers and hours worked (and saves as data sets).
-    - Spouses' criminal records (and saves as data sets).
-    - Spouses' legal grounds of residency (and adds to spouse data).
-    """
+def _build_lmo(ids: set[int], paths):
+    """Build monthly wages/fulltime/transfers outcomes."""
 
-    # expose paths (and create output folders if they do not exist)
-    paths = init(Path.cwd())
-
-    # load spouses
-    spouses = pd.read_parquet(paths.data / "spouses.parquet")
-
-    ids = set(spouses["pnr"])
     years = range(2008, 2022)  # data availability
 
     # ---- BFL: Wages and share of fulltime
@@ -45,12 +31,11 @@ def run():
         concatenate=True,
     )
 
-    # Make monthly
     bfl = (
         bfl.assign(
-            month=pd.to_datetime(
-                bfl["ajo_job_slut_dato"], errors="coerce"
-            ).dt.to_period("M")
+            month=pd.to_datetime(bfl["ajo_job_slut_dato"], errors="coerce").dt.to_period(
+                "M"
+            )
         )
         .dropna(subset=["month"])
         .groupby(["pnr", "month"])
@@ -58,11 +43,8 @@ def run():
             wages=(
                 "ajo_smalt_loenbeloeb",
                 lambda x: x.sum() / 1000,
-            ),  # Total wages, 1.000 DKK
-            fulltime=(
-                "ajo_fuldtid_beskaeftiget",
-                lambda x: x.sum(),
-            ),  # Share of fulltime
+            ),
+            fulltime=("ajo_fuldtid_beskaeftiget", lambda x: x.sum()),
         )
         .reset_index()
     )
@@ -79,7 +61,6 @@ def run():
         concatenate=True,
     )
 
-    # Make monthly
     ilme = (
         ilme.assign(
             month=pd.to_datetime(ilme["vmo_slutdato"], errors="coerce").dt.to_period(
@@ -92,7 +73,7 @@ def run():
             transfers=(
                 "vmo_a_indk_am_bidrag_fri",
                 lambda x: x.sum() / 1000,
-            ),  # Total transfers, 1.000 DKK
+            ),
         )
         .reset_index()
     )
@@ -105,7 +86,11 @@ def run():
         lower=0, upper=ilme["transfers"].quantile(0.99), inplace=True
     )
 
-    # ---- Criminal records
+    return bfl, ilme
+
+
+def _build_crime_records(ids: set[int], paths):
+    """Build monthly crime outcomes (conviction, charge, incarceration)."""
 
     # KRAF: Convictions, penal law
     years = range(1998, 2022)
@@ -120,7 +105,6 @@ def run():
         filters={"pnr": ids, "afg_ger7": range(1000000, 2000000)},
     )
 
-    # Make KRAF monthly
     kraf = (
         kraf.assign(
             month=pd.to_datetime(kraf["afg_afgoedto"], errors="coerce").dt.to_period(
@@ -132,7 +116,6 @@ def run():
     )
 
     # KRSI: Charges, penal law
-    years = range(1998, 2022)
     vl = ["pnr", "sig_ger7", "sig_sigtdto"]
 
     krsi = gather(
@@ -144,7 +127,6 @@ def run():
         filters={"pnr": ids, "sig_ger7": range(1000000, 2000000)},
     )
 
-    # Make KRSI monthly
     krsi = (
         krsi.assign(
             month=pd.to_datetime(krsi["sig_sigtdto"], errors="coerce").dt.to_period("M")
@@ -163,32 +145,23 @@ def run():
     )
 
     krin = (
-        krin
-        # Keep only incarcerations since 1998
-        .loc[lambda d: (d["fgsldto"].dt.year >= 1998) | (d["losldto"].dt.year >= 1998)]
-        # ---- Dealing w. missing release dates
-        # Missing release dates for transfers are set to day of entry
+        krin.loc[lambda d: (d["fgsldto"].dt.year >= 1998) | (d["losldto"].dt.year >= 1998)]
         .assign(
             losldto=lambda d: d["losldto"].mask(
                 d["losldto"].isna() & d["handelse"].eq(6), d["fgsldto"]
             )
         )
-        # Keep latest release by entry
-        .sort_values(
-            ["pnr", "fgsldto", "losldto"], na_position="first"
-        ).drop_duplicates(["pnr", "fgsldto"], keep="last")
-        # Recent incarcerations (likely not finished)
+        .sort_values(["pnr", "fgsldto", "losldto"], na_position="first")
+        .drop_duplicates(["pnr", "fgsldto"], keep="last")
         .assign(
             losldto=lambda d: d["losldto"].mask(
                 d["losldto"].isna() & d["fgsldto"].dt.year.ge(2021),
                 pd.Timestamp(day=31, month=12, year=2023),
             )
         )
-        # Set remaining to 1-day stays
         .assign(losldto=lambda d: d["losldto"].fillna(d["fgsldto"]))
     )
 
-    # Make KRIN monthly
     krin[["fgsldto", "losldto"]] = krin[["fgsldto", "losldto"]].apply(
         lambda c: c.dt.to_period("M")
     )
@@ -200,10 +173,14 @@ def run():
     krin = (
         krin[["pnr", "month"]]
         .explode("month", ignore_index=True)
-        .drop_duplicates(["pnr", "month"])  # Remove overlapping intervals
+        .drop_duplicates(["pnr", "month"])
     )
 
-    # ---- IND: Assets
+    return kraf, krsi, krin
+
+
+def _add_assets(spouses: pd.DataFrame, ids: set[int], paths) -> pd.DataFrame:
+    """Merge prior-year net assets onto spouse sample."""
 
     years = range(1999, 2022)
     vl = ["pnr", "formrest_ny05"]
@@ -218,26 +195,25 @@ def run():
         add_name="year",
     )
 
-    # Collapse by person
     ind = ind.groupby(["pnr", "year"], as_index=False).agg(
         assets=("formrest_ny05", lambda x: x.sum() / 1000)
-    )  # Net assets, 1.000 DKK
+    )
 
-    # Year prior
     ind["year"] = ind["year"] + 1
     spouses = spouses.merge(ind, on=["pnr", "year"], how="left")
 
-    # If missing, but in population register: assume 0
     spouses.loc[spouses["assets"].isna(), "assets"] = 0
-
-    # Truncate
     spouses["assets"].clip(
         lower=spouses["assets"].quantile(0.01),
         upper=spouses["assets"].quantile(0.99),
         inplace=True,
     )
 
-    # ---- Grounds of residency
+    return spouses
+
+
+def _add_residency_grounds(spouses: pd.DataFrame, ids: set[int], paths) -> pd.DataFrame:
+    """Merge legal grounds of residency and derive final grounds variable."""
 
     years = range(1997, 2021)
     vl = ["pnr", "tilladelsesdato", "kategori"]
@@ -251,10 +227,9 @@ def run():
         concatenate=True,
     )
 
-    # Keep latest permit prior to conviction
     ophg = ophg.merge(spouses[["pnr", "conviction_date"]], on="pnr", how="left")
 
-    dates = ["tilladelsesdato", "conviction_date"]  # Make monthly...
+    dates = ["tilladelsesdato", "conviction_date"]
     ophg[dates] = ophg[dates].apply(
         lambda c: pd.to_datetime(c, errors="coerce").dt.to_period("M")
     )
@@ -265,48 +240,66 @@ def run():
         ophg.sort_values("tilladelsesdato")
         .drop_duplicates("pnr", keep="last")
         .reset_index(drop=True)
-        .rename(
-            columns={
-                "kategori": "category"  # Spouses' grounds of residency category (highest level)
-            }
-        )
+        .rename(columns={"kategori": "category"})
     )
 
     spouses = spouses.merge(ophg[["pnr", "category"]], on="pnr", how="left")
 
-    # Imputing grounds of residency based on citizenship
     spouses["grounds"] = np.nan
 
-    kingdom = [5100, 5115, 5902, 5901, 5101]  # Denmark, Greenaland, Faroese Islands
+    kingdom = [5100, 5115, 5902, 5901, 5101]
     spouses.loc[spouses["citizenship"].isin(kingdom), "grounds"] = 0
 
-    eu_eea = load_csv("countries.csv").loc[lambda d: d.eu_eea.eq(1), "code"]  # EU/EEA
+    eu_eea = load_csv("countries.csv").loc[lambda d: d.eu_eea.eq(1), "code"]
     spouses.loc[
         spouses["citizenship"].isin(eu_eea) & ~spouses["citizenship"].isin(kingdom),
         "grounds",
     ] = 1
 
-    # From OPHG
     still_mis = spouses["grounds"].isna()
-    spouses.loc[still_mis & spouses["category"].eq(4), "grounds"] = 1  # EU/EEA
-    spouses.loc[still_mis & spouses["category"].eq(1), "grounds"] = 2  # Asylum
-    spouses.loc[still_mis & spouses["category"].isin([3, 6]), "grounds"] = (
-        3  # Study/work
-    )
-    spouses.loc[still_mis & spouses["category"].eq(5), "grounds"] = (
-        4  # Family Reunified
-    )
-    spouses.loc[still_mis & spouses["category"].eq(2), "grounds"] = 5  # Unspecified
+    spouses.loc[still_mis & spouses["category"].eq(4), "grounds"] = 1
+    spouses.loc[still_mis & spouses["category"].eq(1), "grounds"] = 2
+    spouses.loc[still_mis & spouses["category"].isin([3, 6]), "grounds"] = 3
+    spouses.loc[still_mis & spouses["category"].eq(5), "grounds"] = 4
+    spouses.loc[still_mis & spouses["category"].eq(2), "grounds"] = 5
 
     spouses.drop(columns=["category"], inplace=True)
+    return spouses
 
-    # Save data
-    bfl.to_parquet(paths.data / "bfl.parquet")
-    ilme.to_parquet(paths.data / "ilme.parquet")
-    kraf.to_parquet(paths.data / "kraf.parquet")
-    krsi.to_parquet(paths.data / "krsi.parquet")
-    krin.to_parquet(paths.data / "krin.parquet")
-    spouses.to_parquet(paths.data / "spouses.parquet")
+
+def _save_outputs(spouses: pd.DataFrame, bfl, ilme, kraf, krsi, krin, paths) -> None:
+    """Persist temporary build outputs."""
+
+    bfl.to_parquet(paths.temp / "bfl.parquet")
+    ilme.to_parquet(paths.temp / "ilme.parquet")
+    kraf.to_parquet(paths.temp / "kraf.parquet")
+    krsi.to_parquet(paths.temp / "krsi.parquet")
+    krin.to_parquet(paths.temp / "krin.parquet")
+    spouses.to_parquet(paths.temp / "spouses.parquet")
+
+
+def run():
+    """Build spouses' outcomes/covariates and save temporary datasets."""
+
+    paths = PATHS
+    spouses = pd.read_parquet(paths.temp / "spouses.parquet")
+
+    ids = set(spouses["pnr"])
+
+    bfl, ilme = _build_lmo(ids=ids, paths=paths)
+    kraf, krsi, krin = _build_crime_records(ids=ids, paths=paths)
+    spouses = _add_assets(spouses=spouses, ids=ids, paths=paths)
+    spouses = _add_residency_grounds(spouses=spouses, ids=ids, paths=paths)
+
+    _save_outputs(
+        spouses=spouses,
+        bfl=bfl,
+        ilme=ilme,
+        kraf=kraf,
+        krsi=krsi,
+        krin=krin,
+        paths=paths,
+    )
 
 
 if __name__ == "__main__":

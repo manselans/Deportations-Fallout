@@ -1,3 +1,5 @@
+"""K-nearest-neighbor hot-deck imputation utilities for panel data."""
+
 from dataclasses import dataclass
 from typing import List, Optional
 
@@ -7,29 +9,30 @@ import pandas as pd
 
 @dataclass
 class KNNConfig:
+    """Configuration for KNN hot-deck imputation."""
 
-    # core columns
+    # Core identifier, time, and target columns.
     id_col: str = "pnr"
     t_col: str = "event_time"
     y_col: str = "partic"
 
-    # stratification + year of event with back-off
+    # Stratification columns and year column used for donor back-off.
     strata_fixed: List[str] = None
     year_event_col: str = "year"
 
-    # distance features
+    # Features used in the donor distance metric.
     distance_numeric: List[str] = None
     distance_categorical: List[str] = None
 
-    # KNN and back-off controls
+    # KNN selection and donor-search controls.
     k: int = 3
     max_backoff_years: int = 2
     stochastic: bool = True
     random_state: Optional[int] = 1
 
 
-def _standardize_numeric(donors_num: pd.DataFrame, target_num: pd.Series):
-    """Standardize numeric features. Fill NaNs with donor medians"""
+def _standardize_numeric(donors_num: pd.DataFrame, target_num: pd.Series) -> tuple[np.ndarray, np.ndarray]:
+    """Standardize numeric features after median-imputing missing values."""
 
     if donors_num.shape[1] == 0:
         # no numeric features
@@ -52,8 +55,8 @@ def _standardize_numeric(donors_num: pd.DataFrame, target_num: pd.Series):
     return donors_std.to_numpy(), target_std.to_numpy()
 
 
-def _one_hot_align(donors_cat: pd.DataFrame, target_cat: pd.Series):
-    """One-hot encode categoricals using donors' categories, align target accordingly"""
+def _one_hot_align(donors_cat: pd.DataFrame, target_cat: pd.Series) -> tuple[np.ndarray, np.ndarray]:
+    """One-hot encode donor categoricals and align the target row to donor columns."""
     if donors_cat.shape[1] == 0:
         # no categorical features
         return np.empty((len(donors_cat), 0)), np.empty((0,), dtype=float)
@@ -69,8 +72,13 @@ def _one_hot_align(donors_cat: pd.DataFrame, target_cat: pd.Series):
     return donors_ohe.to_numpy(), target_ohe.to_numpy().ravel()
 
 
-def _distance_matrix(donors_num, target_num, donors_cat, target_cat):
-    """Concatenate numeric+categorical features and return Euclidian distances (donor-by-1)"""
+def _distance_matrix(
+    donors_num: np.ndarray,
+    target_num: np.ndarray,
+    donors_cat: np.ndarray,
+    target_cat: np.ndarray,
+) -> np.ndarray:
+    """Compute donor-to-target Euclidean distances in the combined feature space."""
     # concatenate
     if donors_num.size == 0:
         Xd_num, xt_num = np.empty((len(donors_cat), 0)), np.empty((0,))
@@ -85,7 +93,7 @@ def _distance_matrix(donors_num, target_num, donors_cat, target_cat):
     Xd = np.concatenate([Xd_num, Xd_cat], axis=1)
     xt = np.concatenate([xt_num, xt_cat], axis=0).reshape(1, -1)
 
-    # Euclidean dinstances
+    # Euclidean distances
     diffs = Xd - xt
     dists = np.sqrt(np.sum(diffs**2, axis=1))
     return dists

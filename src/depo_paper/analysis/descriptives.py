@@ -10,9 +10,9 @@ import pandas as pd
 
 import matplotlib.pyplot as plt
 
-from tools.paths import init
-from tools.tables import table_by_two
-from tools.formatting import setup_pyplot
+from depo_paper.config import PATHS
+from depo_paper.tools.tables import table_by_two
+from depo_paper.tools.formatting import setup_pyplot
 
 
 def run():
@@ -24,15 +24,15 @@ def run():
     """
 
     # expose paths (and create output folders if they do not exist)
-    paths = init(Path.cwd())
+    paths = PATHS
 
     # setup plotting defaults
     setup_pyplot()
 
     # ---- Load data
 
-    population = pd.read_parquet(paths.data / "population.parquet")
-    panel = pd.read_parquet(paths.data / "panel.parquet")
+    population = pd.read_parquet(paths.temp / "population.parquet")
+    panel = pd.read_parquet(paths.temp / "panel.parquet")
 
     # ---- Figure 1: Deportation orders over time
 

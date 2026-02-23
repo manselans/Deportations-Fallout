@@ -11,11 +11,11 @@ import pandas as pd
 
 import matplotlib.pyplot as plt
 
-from tools.paths import init
-from tools.formatting import setup_pyplot
-from tools.plots import dyn_did, raw_rates, did_plot
-from tools.ipcw import ipcw
-from tools.knn_hd import knn_hotdeck_impute, KNNConfig
+from depo_paper.config import PATHS
+from depo_paper.tools.formatting import setup_pyplot
+from depo_paper.tools.plots import dyn_did, raw_rates, did_plot
+from depo_paper.tools.ipcw import ipcw
+from depo_paper.tools.knn_hd import knn_hotdeck_impute, KNNConfig
 
 
 def run():
@@ -28,13 +28,13 @@ def run():
     """
 
     # expose paths (and create output folders if they do not exist)
-    paths = init(Path.cwd())
+    paths = PATHS
 
     # setup plotting defaults
     setup_pyplot()
 
     # load data
-    panel = pd.read_parquet(paths.data / "panel.parquet")
+    panel = pd.read_parquet(paths.temp / "panel.parquet")
 
     # ---- Figure 4: Migrations out of Denmark
 
