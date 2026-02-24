@@ -15,6 +15,7 @@ def main() -> None:
     panel()
     female_foreign()
 
+    # Delete intermediate datasets; lines may be commented out 
     for file_name in ["bfl.parquet", "ilme.parquet", "kraf.parquet", "krsi.parquet", "krin.parquet"]:
         file_path = paths.temp / file_name
         if file_path.exists():
