@@ -104,8 +104,6 @@ src/depo_paper/config.py           # Project paths and matplotlib configuration
 
 ---
 
----
-
 ## Environment
 
 ### Python version
