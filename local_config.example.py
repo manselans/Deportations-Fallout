@@ -1,13 +1,17 @@
-"""Example local configuration.
+"""
+Example local configuration for project.
 
-Copy this file to local_config.py and edit DATA_PATHS.
+Copy this file to local_config.py
+and edit the values below to match your local environment.
 """
 
 from pathlib import Path
 
+# ---------------------------------------------------------------------
+# Required: Paths to the data on your server
+# ---------------------------------------------------------------------
+
 DATA_PATHS = {
-    "dst_raw": Path("/path/to/dst_raw"),
-    "crime": Path("/path/to/crime"),
-    "formats": Path("/path/to/formats"),
-    "disced": Path("/path/to/disced"),
+    "dst_raw": Path(r"paths/to/raw/data"),
+    "crime": Path(r"path/to/crime/data"),
 }

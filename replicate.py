@@ -1,27 +1,31 @@
-#!/usr/bin/env python3
-"""Master replication entry point for depo_paper."""
+"""
+Replicate paper.
+Prepare all data sets used in the analysis and generate 
+all tables and figures included in paper.
+Save data to ``temp/``. 
+Save figures and tables to ``output/``.
+"""
 
-from depo_paper.config import PATHS, setup_matplotlib
-from scripts.collect_data import main as collect_data
-from scripts.run_analysis import main as run_analysis
-from scripts.appendix import main as appendix
+from run.collect_data import collect_data
+from run.run_analysis import run_analysis
 
+def replicate():
+    """
+    Replicate paper.
+    Prepare all data sets used in the analysis and generate 
+    all tables and figures included in paper.
+    Save data to ``temp/``. 
+    Save figures and tables to ``output/``.
+    """
 
-def main() -> None:
-    PATHS.ensure_dirs()
-    setup_matplotlib()
-
-    print("Running data collection...")
+    print("Collecting data...")
     collect_data()
 
-    print("Running main analysis...")
+    print("Generating figures and tables...")
     run_analysis()
 
-    print("Running appendix analyses...")
-    appendix()
-
-    print("Replication complete!")
+    print("Replication complete.")
 
 
 if __name__ == "__main__":
-    main()
+    replicate()
